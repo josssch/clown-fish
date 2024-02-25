@@ -15,10 +15,21 @@ function fish_prompt
   set -l white (set_color -o white)
   set -l normal (set_color normal)
 
-
   set -l cwd $cyan(basename (prompt_pwd))
 
   if [ (_git_branch_name) ]
+    # when in a git repo show the pwd relative to the git root
+    set -l git_dir (command git rev-parse --show-toplevel)
+    set -l relative_path (command realpath --relative-to="$git_dir" (pwd))
+
+    if [ "$relative_path" = "." ]
+      set relative_path ""
+    else
+      set relative_path "/$relative_path"
+    end
+
+    set cwd "$cyan" (prompt_pwd "$(basename $git_dir)$relative_path")
+
     set -l git_branch $green(_git_branch_name)
     set git_info "$normal($green$git_branch"
 
@@ -32,4 +43,3 @@ function fish_prompt
 
   echo -n -s $normal '[' $white (whoami) $normal '@' $red (hostname -s) $normal ' ' $cwd ' '  $git_info $normal ']$ '
 end
-
