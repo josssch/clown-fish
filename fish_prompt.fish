@@ -3,6 +3,10 @@ function _git_branch_name
   echo (command git symbolic-ref HEAD 2> /dev/null | sed -e 's|^refs/heads/||')
 end
 
+function _git_commit_hash
+  echo (command git rev-parse --short HEAD 2> /dev/null)
+end
+
 function _is_git_dirty
   echo (command git status -s --ignore-submodules=dirty 2> /dev/null)
 end
@@ -17,7 +21,13 @@ function fish_prompt
 
   set -l cwd $cyan(basename (prompt_pwd))
 
-  if [ (_git_branch_name) ]
+  set -l git_display (_git_branch_name)
+
+  if [ ! $git_display ]
+    set git_display (_git_commit_hash)
+  end
+
+  if [ $git_display ]
     # when in a git repo show the pwd relative to the git root
     set -l git_dir (command git rev-parse --show-toplevel)
     set -l relative_path (command realpath --relative-to="$git_dir" (pwd))
@@ -29,9 +39,7 @@ function fish_prompt
     end
 
     set cwd "$cyan" (prompt_pwd "$(basename $git_dir)$relative_path")
-
-    set -l git_branch $green(_git_branch_name)
-    set git_info "$normal($green$git_branch"
+    set git_info "$normal($green$git_display"
 
     if [ (_is_git_dirty) ]
       set -l dirty "$yellow ✗"
