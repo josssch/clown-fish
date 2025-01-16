@@ -60,5 +60,10 @@ function fish_prompt
     echo
   end
 
-  echo -n -s $normal "\$ "
+  set -l prompt_symbol '$'
+  if [ $EUID -eq 0 ]
+    set prompt_symbol '#'
+  end
+
+  echo -n -s $normal $prompt_symbol " "
 end
