@@ -49,5 +49,16 @@ function fish_prompt
     set git_info "$git_info$normal)"
   end
 
-  echo -n -s $normal '[' $white (whoami) $normal '@' $red (hostname -s) $normal ' ' $cwd ' '  $git_info $normal ']$ '
+  set -l output $normal '[' $white (whoami) $normal '@' $red (hostname -s) $normal ' ' $cwd ' ' $git_info $normal ']'
+
+  echo -n -s $output
+
+  set -l prompt_length (string length -V "$output")
+  set -l remaining_space (math $COLUMNS - $prompt_length)
+
+  if [ $remaining_space -le 50 ]
+    echo
+  end
+
+  echo -n -s $normal "\$ "
 end
